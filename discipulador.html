@@ -442,13 +442,30 @@
       }
 
       // Função da NOVA ABA de Agenda
+      // Função da NOVA ABA de Agenda (ATUALIZADA COM ORDENAÇÃO)
       function renderizarAgenda(lista) {
          const div = document.getElementById('listaAgenda');
          div.innerHTML = '';
+         
          if(!lista || lista.length === 0) {
              div.innerHTML = '<p style="text-align:center; color:#999; grid-column: 1 / -1; margin-top:20px;">Nenhum evento na agenda.</p>';
              return;
          }
+
+         // --- LÓGICA DE ORDENAÇÃO: MAIS PRÓXIMO PRIMEIRO ---
+         lista.sort((a, b) => {
+             const parseDate = (d) => {
+                 if(!d) return 0;
+                 if(d.includes('-')) { const p = d.split('-'); return new Date(p[0], p[1]-1, p[2]).getTime(); }
+                 if(d.includes('/')) { const p = d.split('/'); return new Date(p[2], p[1]-1, p[0]).getTime(); }
+                 return new Date(d).getTime();
+             };
+             return parseDate(a[0]) - parseDate(b[0]); // Crescente (mais próximo no topo)
+         });
+
+         // (Opcional) Se quiser ESCONDER eventos que já passaram (datas anteriores a hoje),
+         // basta apagar as duas barras "//" da linha abaixo:
+         // lista = lista.filter(a => { let p = a[0].includes('-') ? a[0].split('-') : a[0].split('/'); let d = new Date(p[0].length===4 ? p[0] : p[2], (p[0].length===4 ? p[1] : p[1])-1, p[0].length===4 ? p[2] : p[0]); d.setHours(0,0,0,0); let hoje = new Date(); hoje.setHours(0,0,0,0); return d.getTime() >= hoje.getTime(); });
 
          lista.forEach((a) => {
              // Array esperado do Apps Script: a[0]=data, a[1]=descricao, a[2]=observacao, a[3]=tipo, a[4]=categoria
