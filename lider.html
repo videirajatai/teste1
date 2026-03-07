@@ -351,12 +351,12 @@
 
       <div class="stat-card" id="card-versiculo">
         <span class="titulo-versiculo"><i class="fas fa-star"></i> Versículo do Dia</span>
-        <p class="texto-versiculo" id="texto-versiculo-dia">Carregando a Palavra...</p>
+        <p class="texto-versiculo" id="texto-versiculo-dia">Carregando...</p>
         <span class="ref-versiculo" id="ref-versiculo-dia"></span>
       </div>
 
       <button onclick="abrirBiblia()" class="btn-biblia-destaque">
-        <i class="fas fa-bible"></i> Ler a Bíblia - A Mensagem
+        <i class="fas fa-bible"></i>Bíblia A Mensagem
       </button>
 
       <div class="nav-menu">
@@ -365,14 +365,14 @@
         <button onclick="mudarSecao('relatorio')" class="nav-btn" id="btn-relatorio"><i class="fas fa-clipboard-list"></i> Relatório</button>
         <button onclick="mudarSecao('agenda')" class="nav-btn" id="btn-agenda"><i class="far fa-calendar-alt"></i> Agenda</button>
         <button onclick="mudarSecao('palavras')" class="nav-btn" id="btn-palavras"><i class="fas fa-book-open"></i> Palavras</button>
-        <button onclick="mudarSecao('sugestao')" class="nav-btn" id="btn-sugestao"><i class="fas fa-lightbulb"></i> Sugestão</button>
+        <button onclick="mudarSecao('sugestao')" class="nav-btn" id="btn-sugestao"><i class="fa-praying-hands"></i> Sugestão</button>
       </div>
 
       <div id="secao-lista">
         <div style="background: white; padding: 15px; border-radius: 12px; margin-bottom: 20px; box-shadow: var(--shadow);">
           <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
               <h4 style="margin:0; color: var(--text-light); display: flex; align-items: center; gap: 8px;">
-                Gerenciar Membros 
+                Membros 
                 <span id="badge-total-membros" style="background: var(--primary); color: white; padding: 3px 10px; border-radius: 12px; font-size: 0.8rem;">0</span>
               </h4>
               <button onclick="mudarSecao('cadastro')" class="btn-add-member"><i class="fas fa-plus"></i> Novo Membro</button>
@@ -484,7 +484,7 @@
                  <select name="categoria" required>
                     <option value="RADICAIS LIVRES">RADICAIS LIVRES</option>
                     <option value="GOOGLE AGENDA">GOOGLE AGENDA</option>
-                    <option value="KIDS">KIDS</option>
+                    <option value="KIDS">RADICAIS KIDS</option>
                  </select>
               </div>
            </div>
@@ -496,8 +496,8 @@
       </div>
       
       <div id="secao-sugestao" class="hidden form-box">
-        <h3 style="color:#b58900; margin-top:0;">Caixa de Sugestões</h3>
-        <p style="color:#666; font-size:0.9rem;">Deixe sua ideia, crítica ou sugestão para a liderança.</p>
+        <h3 style="color:#b58900; margin-top:0;">Pedido Oração</h3>
+        <p style="color:#666; font-size:0.9rem;">Escreva seu pedido de oração, ou alguma mensagem direta para o pastor.</p>
         <form id="formSugestao">
            <textarea name="mensagem" rows="6" required placeholder="Escreva aqui..." style="resize: vertical;"></textarea>
            <button type="submit" id="btnSugestao" class="btn-save" style="background:var(--accent); color:#333;">Enviar</button>
