@@ -719,20 +719,52 @@
           setTimeout(() => overlay.style.display = 'none', 300);
       }
 
-      function carregarCapitulo() {
-          const conteudo = document.getElementById('biblia-conteudo');
-          conteudo.innerHTML = "<p><em>Buscando capítulo...</em></p>";
-          
-          // Simulação enquanto não conectamos com o Google Drive
-          setTimeout(() => {
-              conteudo.innerHTML = `
-                  <h3 style="color: var(--ouro-videira); margin-bottom: 15px;">Gênesis 1</h3>
-                  <p><strong>1</strong> No princípio, Deus criou os céus e a terra. Tudo era um vazio, uma escuridão sem fim...</p>
-                  <p><strong>2</strong> O Espírito de Deus pairava sobre as águas.</p>
-                  <p><strong>3</strong> E Deus disse: "Haja luz". E houve luz.</p>
-              `;
-          }, 800);
-      }
+      async function carregarCapitulo() {
+    const selectLivro = document.getElementById('biblia-livro');
+    const selectCapitulo = document.getElementById('biblia-capitulo');
+    const conteudo = document.getElementById('biblia-conteudo');
+    
+    // Pegando os valores selecionados (ex: "1corintios" e "1")
+    const livro = selectLivro.value;
+    const capitulo = selectCapitulo.value;
+
+    if (!livro || !capitulo) {
+        alert("Por favor, selecione um livro e um capítulo.");
+        return;
+    }
+
+    conteudo.innerHTML = "<p class='biblia-placeholder'><i class='fas fa-spinner fa-spin'></i> Buscando capítulo...</p>";
+    
+    try {
+        // Usa o nosso motor de comunicação já existente para chamar o Apps Script
+        const versiculos = await fetchGoogle('buscarCapituloBiblia', { livro: livro, capitulo: capitulo });
+        
+        // Limpa o conteúdo
+        conteudo.innerHTML = `<h3 style="color: var(--ouro-videira); margin-bottom: 25px; text-transform: capitalize;">${livro} ${capitulo}</h3>`;
+        
+        // Monta o texto na tela baseado no JSON
+        versiculos.forEach(v => {
+            let blocoHTML = `<div style="margin-bottom: 15px;">`;
+            
+            // Se tiver título ("A CRUZ: IRONIA DA SABEDORIA"), coloca em destaque
+            if (v.title && v.title.trim() !== "") {
+                blocoHTML += `<h4 style="color: #475569; font-size: 0.95rem; margin-top: 25px; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px;">${v.title}</h4>`;
+            }
+            
+            // Coloca o número do versículo pequenininho e o texto
+            blocoHTML += `<p style="margin: 0; text-align: justify;">
+                            <sup style="color: var(--ouro-videira); font-weight: bold; margin-right: 4px;">${v.number}</sup>
+                            ${v.content}
+                          </p>`;
+                          
+            blocoHTML += `</div>`;
+            conteudo.innerHTML += blocoHTML;
+        });
+
+    } catch (e) {
+        conteudo.innerHTML = `<p style="color: red; text-align: center;">Erro ao carregar o texto. Tente novamente.</p>`;
+    }
+}
     </script>
   </body>
 </html>
