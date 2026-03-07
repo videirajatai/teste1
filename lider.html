@@ -233,7 +233,7 @@
         <button onclick="mudarSecao('agenda')" class="nav-btn" id="btn-agenda"><i class="far fa-calendar-alt"></i> Agenda</button>
         <button onclick="mudarSecao('palavras')" class="nav-btn" id="btn-palavras"><i class="fas fa-book-open"></i> Palavras</button>
         <button onclick="mudarSecao('sugestao')" class="nav-btn" id="btn-sugestao"><i class="fas fa-lightbulb"></i> Sugestão</button>
-        <button onclick="abrirBiblia()" class="nav-btn" id="btn-abrir-biblia"><i class="fas fa-bible"></i> Bíblia</button>
+        <button onclick="abrirBiblia()" class="nav-btn" id="btn-abrir-biblia"><i class="fas fa-bible"></i> Bíblia - A Mensagem</button>
       </div>
 
       <div id="secao-lista">
@@ -718,16 +718,41 @@
           setTimeout(() => overlay.style.display = 'none', 300);
       }
 
+// Carrega a lista de livros no menu separados por Testamento
 function iniciarBiblia() {
     const selectLivro = document.getElementById('biblia-livro');
     selectLivro.innerHTML = '<option value="">Selecione o Livro</option>';
     
-    dadosBiblia.forEach(livro => {
+    // Cria as "pastas" separadoras dentro do menu
+    const grupoVelhoTestamento = document.createElement('optgroup');
+    grupoVelhoTestamento.label = "📖 VELHO TESTAMENTO";
+    
+    const grupoNovoTestamento = document.createElement('optgroup');
+    grupoNovoTestamento.label = "✝️ NOVO TESTAMENTO";
+
+    dadosBiblia.forEach((livro, index) => {
         let option = document.createElement('option');
         option.value = livro.id;
         option.text = livro.nome;
-        selectLivro.appendChild(option);
+        
+        // Mateus é o 40º livro (índice 39, pois a contagem começa do zero)
+        if (index < 39) {
+            // Se for antes de Mateus, vai pro Velho Testamento
+            grupoVelhoTestamento.appendChild(option);
+        } else {
+            // Se for Novo Testamento, coloca no grupo do NT e força o negrito
+            option.style.fontWeight = "bold"; 
+            
+            // Um truque visual: colocar um espacinho extra ou um marcador ajuda muito
+            option.text = "• " + livro.nome; 
+            
+            grupoNovoTestamento.appendChild(option);
+        }
     });
+
+    // Adiciona os dois grupos montados dentro do menu principal
+    selectLivro.appendChild(grupoVelhoTestamento);
+    selectLivro.appendChild(grupoNovoTestamento);
 }
 
       function atualizarCapitulos() {
@@ -809,7 +834,7 @@ function iniciarBiblia() {
         return;
     }
 
-    conteudo.innerHTML = "<p class='biblia-placeholder'><i class='fas fa-spinner fa-spin'></i> Buscando no Google Drive...</p>";
+    conteudo.innerHTML = "<p class='biblia-placeholder'><i class='fas fa-spinner fa-spin'></i> carregando...</p>";
     
     try {
         // Chama o seu Google Apps Script!
