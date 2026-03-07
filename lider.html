@@ -381,16 +381,24 @@
         </div>
 
         <div class="biblia-controles">
-            <select id="biblia-livro">
-                <option value="">Selecione o Livro</option>
-                <option value="Gênesis">Gênesis</option>
-                <option value="Mateus">Mateus</option>
-                </select>
-            <select id="biblia-capitulo">
-                <option value="">Capítulo</option>
-                <option value="1">1</option>
-                <option value="2">2</option>
-            </select>
+           <select id="biblia-livro">
+    <option value="">Selecione o Livro</option>
+    <optgroup label="Velho Testamento">
+        <option value="genesis">Gênesis</option>
+        <option value="exodo">Êxodo</option>
+        <option value="salmos">Salmos</option>
+        <option value="proverbios">Provérbios</option>
+    </optgroup>
+    <optgroup label="Novo Testamento">
+        <option value="mateus">Mateus</option>
+        <option value="marcos">Marcos</option>
+        <option value="lucas">Lucas</option>
+        <option value="joao">João</option>
+        <option value="romanos">Romanos</option>
+        <option value="1corintios">1 Coríntios</option>
+    </optgroup>
+</select>
+<input type="number" id="biblia-capitulo" placeholder="Capítulo" min="1" max="150" style="width: 80px; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px;">
             <button class="btn-ler-ouro" onclick="carregarCapitulo()">Ler</button>
         </div>
 
@@ -721,48 +729,42 @@
 
       async function carregarCapitulo() {
     const selectLivro = document.getElementById('biblia-livro');
-    const selectCapitulo = document.getElementById('biblia-capitulo');
+    const inputCapitulo = document.getElementById('biblia-capitulo');
     const conteudo = document.getElementById('biblia-conteudo');
     
-    // Pegando os valores selecionados (ex: "1corintios" e "1")
     const livro = selectLivro.value;
-    const capitulo = selectCapitulo.value;
+    const capitulo = inputCapitulo.value;
 
     if (!livro || !capitulo) {
-        alert("Por favor, selecione um livro e um capítulo.");
+        alert("Por favor, selecione um livro e digite o capítulo.");
         return;
     }
 
-    conteudo.innerHTML = "<p class='biblia-placeholder'><i class='fas fa-spinner fa-spin'></i> Buscando capítulo...</p>";
+    conteudo.innerHTML = "<p class='biblia-placeholder'><i class='fas fa-spinner fa-spin'></i> Buscando no Google Drive...</p>";
     
     try {
-        // Usa o nosso motor de comunicação já existente para chamar o Apps Script
+        // Chama o seu Google Apps Script!
         const versiculos = await fetchGoogle('buscarCapituloBiblia', { livro: livro, capitulo: capitulo });
         
-        // Limpa o conteúdo
-        conteudo.innerHTML = `<h3 style="color: var(--ouro-videira); margin-bottom: 25px; text-transform: capitalize;">${livro} ${capitulo}</h3>`;
+        conteudo.innerHTML = `<h3 style="color: var(--ouro-videira); margin-bottom: 25px; text-transform: capitalize;">${selectLivro.options[selectLivro.selectedIndex].text} ${capitulo}</h3>`;
         
-        // Monta o texto na tela baseado no JSON
+        // Monta o texto lendo o formato exato da versão "A Mensagem"
         versiculos.forEach(v => {
             let blocoHTML = `<div style="margin-bottom: 15px;">`;
             
-            // Se tiver título ("A CRUZ: IRONIA DA SABEDORIA"), coloca em destaque
             if (v.title && v.title.trim() !== "") {
                 blocoHTML += `<h4 style="color: #475569; font-size: 0.95rem; margin-top: 25px; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px;">${v.title}</h4>`;
             }
             
-            // Coloca o número do versículo pequenininho e o texto
             blocoHTML += `<p style="margin: 0; text-align: justify;">
                             <sup style="color: var(--ouro-videira); font-weight: bold; margin-right: 4px;">${v.number}</sup>
                             ${v.content}
-                          </p>`;
-                          
-            blocoHTML += `</div>`;
+                          </p></div>`;
             conteudo.innerHTML += blocoHTML;
         });
 
     } catch (e) {
-        conteudo.innerHTML = `<p style="color: red; text-align: center;">Erro ao carregar o texto. Tente novamente.</p>`;
+        conteudo.innerHTML = `<p style="color: var(--danger-text); text-align: center;">Erro ao carregar o capítulo. Verifique se o livro e o capítulo existem.</p>`;
     }
 }
     </script>
