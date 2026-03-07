@@ -126,6 +126,7 @@
         <button onclick="mudarSecao('celulas')" class="nav-btn" id="btn-celulas"><i class="fas fa-network-wired"></i> Células</button>
         <button onclick="carregarArquivados()" class="nav-btn" id="btn-arquivo"><i class="fas fa-archive"></i> Arquivo</button>
         <button onclick="carregarRelatorios()" class="nav-btn" id="btn-relatorios"><i class="fas fa-clipboard-list"></i> Relatórios</button>
+        <button onclick="mudarSecao('agenda')" class="nav-btn" id="btn-agenda"><i class="far fa-calendar-alt"></i> Agenda</button>
         <button onclick="carregarPalavras()" class="nav-btn" id="btn-palavras" style="flex: 1 1 100%; margin-top: 5px; background: var(--accent); color: #333;">
            <i class="fas fa-book-open"></i> Palavras do Culto
         </button>
@@ -179,6 +180,47 @@
         <div id="listaRelatorios"></div>
       </div>
 
+      <div id="secao-agenda" class="hidden">
+        <div style="background: white; padding: 15px; border-radius: 12px; margin-bottom: 20px; box-shadow: var(--shadow);">
+          <div style="display:flex; justify-content: space-between; align-items: center;">
+              <h4 style="margin:0; color: var(--text-light);">Agenda de Eventos</h4>
+              <button onclick="mudarSecao('cadastro-agenda')" class="btn-add-member" style="background:var(--primary);"><i class="fas fa-plus"></i> Novo Evento</button>
+          </div>
+        </div>
+        <div id="listaAgenda" class="member-grid">
+          <p style="text-align:center; color:#999; grid-column: 1 / -1;">Carregando...</p>
+        </div>
+      </div>
+
+      <div id="secao-cadastro-agenda" class="form-box hidden">
+        <h3 style="color:var(--primary); margin-top:0;">Cadastrar Evento na Agenda</h3>
+        <form id="formAgenda">
+           <label>Data do Evento</label><input type="date" name="dataEvento" required>
+           <label>Descrição</label><input type="text" name="descricao" required placeholder="Nome/Descrição do evento">
+           <label>Observações</label><textarea name="observacao" rows="3" placeholder="Detalhes adicionais..."></textarea>
+           <div style="display:flex; gap:10px;">
+              <div style="flex:1;">
+                 <label>Tipo</label>
+                 <select name="tipo" required>
+                    <option value="Gratuito">Gratuito</option>
+                    <option value="Pago">Pago</option>
+                 </select>
+              </div>
+              <div style="flex:1;">
+                 <label>Categoria</label>
+                 <select name="categoria" required>
+                    <option value="RL">RL</option>
+                    <option value="TODA IGREJA">TODA IGREJA</option>
+                    <option value="KIDS">KIDS</option>
+                 </select>
+              </div>
+           </div>
+           <div style="display:flex; gap:10px; margin-top: 15px;">
+               <button type="button" onclick="mudarSecao('agenda')" style="flex:1; background:#eee; color:#555; border:none; border-radius:8px; cursor:pointer;">Cancelar</button>
+               <button type="submit" id="btnSalvarAgenda" class="btn-save" style="flex:2;">Salvar Evento</button>
+           </div>
+        </form>
+      </div>
       <div id="secao-palavras" class="hidden">
          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
             <h4 style="margin:0; color:var(--accent);">Palavras e Estudos</h4>
@@ -272,7 +314,7 @@
 
     <script>
       const API_URL = sessionStorage.getItem('urlApi');
-      let dadosMembros = [], dadosCelulas = [], lideres = [], dadosRelatorios = [], listaPalavras = [];
+      let dadosMembros = [], dadosCelulas = [], lideres = [], dadosRelatorios = [], listaPalavras = [], listaAgenda = [];
       
       window.onload = carregarTudo;
 
@@ -302,6 +344,16 @@
             document.getElementById('totalMembros').innerText = res.total;
             renderizarCards(res.membros); renderizarCelulas(res.celulas);
             preencherSelects(res.celulas);
+
+            // Busca agenda (NOVO)
+            try {
+                const agendaRes = await fetchGoogle('buscarAgenda');
+                listaAgenda = agendaRes || [];
+                renderizarAgenda(listaAgenda);
+            } catch(e) {
+                console.log("Ainda sem dados de agenda configurados no backend.");
+                renderizarAgenda([]);
+            }
         } catch(e) {
             console.error(e);
         } finally {
@@ -343,7 +395,7 @@
       }
 
       function mudarSecao(s) {
-        ['lista','celulas','arquivo','cadastro','form-celula', 'relatorios', 'modal-ver-relatorio', 'palavras'].forEach(id => {
+        ['lista','celulas','arquivo','cadastro','form-celula', 'relatorios', 'modal-ver-relatorio', 'palavras', 'agenda', 'cadastro-agenda'].forEach(id => {
             const el = document.getElementById('secao-'+id) || document.getElementById(id);
             if(el) el.classList.add('hidden');
         });
@@ -387,6 +439,44 @@
                   <i class="fas fa-chevron-right" style="color:var(--text-light);"></i>
               </div>`;
           });
+      }
+
+      // Função da NOVA ABA de Agenda
+      function renderizarAgenda(lista) {
+         const div = document.getElementById('listaAgenda');
+         div.innerHTML = '';
+         if(!lista || lista.length === 0) {
+             div.innerHTML = '<p style="text-align:center; color:#999; grid-column: 1 / -1; margin-top:20px;">Nenhum evento na agenda.</p>';
+             return;
+         }
+
+         lista.forEach((a) => {
+             // Array esperado do Apps Script: a[0]=data, a[1]=descricao, a[2]=observacao, a[3]=tipo, a[4]=categoria
+             let dataF = a[0];
+             try { if(a[0].includes('-')) { const dp=a[0].split('-'); dataF=`${dp[2]}/${dp[1]}/${dp[0]}`; } } catch(e){}
+
+             let corCategoria = '#555';
+             if(a[4] === 'RL') corCategoria = '#0056b3';
+             else if(a[4] === 'TODA IGREJA') corCategoria = 'var(--primary)';
+             else if(a[4] === 'KIDS') corCategoria = '#b58900';
+
+             let corTipo = (a[3] === 'Pago') ? '#dc3545' : 'var(--success-text)';
+
+             div.innerHTML += `
+             <div class="member-card">
+                 <div class="card-header">
+                     <h4 class="card-name" style="color: var(--text-main); font-size: 1rem;"><i class="far fa-calendar-alt"></i> ${dataF}</h4>
+                     <span class="cat-badge" style="background:${corCategoria}; color:white; border:none;">${a[4]||'Sem Categoria'}</span>
+                 </div>
+                 <div style="font-size: 1rem; font-weight: 700; color: #333; margin-top: 5px;">${a[1]||''}</div>
+                 <div style="font-size: 0.85rem; color: #666; margin-top: 5px; min-height: 20px;">${a[2]||''}</div>
+                 <div style="margin-top: 10px; border-top: 1px solid #eee; padding-top: 10px;">
+                     <span style="font-size: 0.75rem; padding: 4px 8px; border-radius: 6px; background: #f9f9f9; color: ${corTipo}; font-weight: bold; border: 1px solid #ddd;">
+                         <i class="fas fa-info-circle"></i> Evento ${a[3]||''}
+                     </span>
+                 </div>
+             </div>`;
+         });
       }
 
       function abrirPalavra(index) {
@@ -523,6 +613,32 @@
               else await fetchGoogle('salvarMembro', d);
               mudarSecao('lista'); carregarTudo();
           } finally { btn.disabled=false; btn.innerText="Salvar"; }
+      };
+
+      // NOVO: ENVIO DA AGENDA
+      document.getElementById('formAgenda').onsubmit = async function(e) {
+         e.preventDefault(); 
+         const btn = document.getElementById('btnSalvarAgenda'); btn.disabled = true; btn.innerText="Salvando...";
+         
+         const d = { 
+            dataEvento: this.dataEvento.value, 
+            descricao: this.descricao.value, 
+            observacao: this.observacao.value, 
+            tipo: this.tipo.value, 
+            categoria: this.categoria.value 
+         };
+         
+         try {
+             const resposta = await fetchGoogle('salvarAgenda', d);
+             alert(resposta);
+             this.reset();
+             mudarSecao('agenda');
+             carregarTudo();
+         } catch(err) {
+             console.error(err);
+         } finally {
+             btn.disabled = false; btn.innerText="Salvar Evento";
+         }
       };
       
       function renderizarCelulas(l) { 
