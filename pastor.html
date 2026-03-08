@@ -18,6 +18,82 @@
       .btn-refresh { background: none; border: none; font-size: 1.2rem; color: var(--text-light); cursor: pointer; transition: 0.3s; }
       .btn-refresh:hover { color: var(--primary); transform: rotate(90deg); }
 
+      /* DASHBOARD / VERSÍCULO DO DIA (NOVO) */
+      .stat-card { 
+          background: linear-gradient(135deg, var(--primary), #5c0016); 
+          color: white; 
+          padding: 25px 20px; 
+          border-radius: var(--radius); 
+          text-align: center; 
+          box-shadow: 0 4px 15px rgba(128, 0, 32, 0.2); 
+          margin-bottom: 15px; 
+          position: relative; 
+          overflow: hidden; 
+      }
+      
+      .stat-card::before { 
+          content: "\f10d"; 
+          font-family: "Font Awesome 5 Free"; 
+          font-weight: 900; 
+          position: absolute; 
+          top: -10px; 
+          left: 10px; 
+          font-size: 4rem; 
+          opacity: 0.1; 
+      }
+      
+      .titulo-versiculo { 
+          text-transform: uppercase; 
+          letter-spacing: 2px; 
+          font-size: 0.75rem; 
+          color: #facc15; 
+          font-weight: 700; 
+          margin-bottom: 10px; 
+          display: block; 
+      }
+      
+      .texto-versiculo { 
+          font-size: 1.05rem; 
+          font-weight: 500; 
+          font-style: italic; 
+          line-height: 1.5; 
+          margin: 0; 
+      }
+      
+      .ref-versiculo { 
+          display: block; 
+          margin-top: 15px; 
+          font-size: 0.85rem; 
+          font-weight: 700; 
+          opacity: 0.9; 
+          text-align: right; 
+      }
+
+      /* BOTÃO BÍBLIA DESTAQUE (NOVO) */
+      .btn-biblia-destaque { 
+          width: 100%; 
+          background: linear-gradient(135deg, var(--ouro-videira), var(--ouro-escuro)); 
+          color: white; 
+          border: none; 
+          padding: 16px; 
+          border-radius: var(--radius); 
+          font-size: 1rem; 
+          font-weight: 700; 
+          cursor: pointer; 
+          display: flex; 
+          align-items: center; 
+          justify-content: center; 
+          gap: 10px; 
+          box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3); 
+          margin-bottom: 20px; 
+          transition: 0.3s; 
+      }
+      
+      .btn-biblia-destaque:hover { 
+          transform: translateY(-2px); 
+          box-shadow: 0 6px 20px rgba(212, 175, 55, 0.4); 
+      }
+
       /* MENU NAVEGAÇÃO */
       .nav-menu { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-bottom: 20px; }
       .nav-btn { flex: 1 1 30%; min-width: 100px; padding: 12px; border: none; border-radius: 10px; background: white; color: var(--text-light); font-weight: 600; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; transition: 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.03); font-size: 0.8rem; }
@@ -55,7 +131,7 @@
       .fin-card.red { background: linear-gradient(135deg, #c5221f, #8a1513); }
       .fin-val { font-size: 1.4rem; font-weight: 800; margin-top: 5px; }
 
-      /* FORMS E MODAIS (Reaproveitados do global/Estilo) */
+      /* FORMS E MODAIS */
       .form-box { background: white; padding: 20px; border-radius: var(--radius); box-shadow: var(--shadow); }
       label { display: block; margin-bottom: 5px; color: var(--text-light); font-weight: 600; font-size: 0.85rem; }
       input, select, textarea { width: 100%; padding: 12px; background: var(--input-bg); margin-bottom: 15px; border: 1px solid var(--border-color); border-radius: 8px; outline: none; box-sizing: border-box; }
@@ -98,6 +174,127 @@
       .btn-youtube { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 12px; background-color: #FF0000; color: white; font-weight: bold; text-decoration: none; border-radius: 8px; margin-bottom: 15px; transition: background 0.2s; box-sizing: border-box; }
       
       @media (max-width: 600px) { .fin-dashboard { grid-template-columns: 1fr; } }
+
+      /* ========================================== */
+      /* ESTILOS DA BÍBLIA (Dourado #D4AF37)         */
+      /* ========================================== */
+
+      :root {
+          --ouro-videira: #D4AF37; 
+          --ouro-escuro: #b5952f;
+      }
+
+      .biblia-offcanvas {
+          position: fixed;
+          top: 0;
+          right: -100%;
+          width: 100%;
+          max-width: 450px;
+          height: 100vh;
+          background-color: #ffffff;
+          box-shadow: -5px 0 25px rgba(0,0,0,0.1);
+          z-index: 2000;
+          transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+          display: flex;
+          flex-direction: column;
+      }
+
+      .biblia-offcanvas.aberto {
+          right: 0;
+      }
+
+      #biblia-overlay {
+          position: fixed; 
+          top: 0; 
+          left: 0; 
+          width: 100%; 
+          height: 100%;
+          background: rgba(0,0,0,0.4); 
+          z-index: 1999;
+          display: none; 
+          opacity: 0; 
+          transition: opacity 0.3s ease;
+      }
+
+      .biblia-header {
+          background-color: var(--ouro-videira);
+          color: white;
+          padding: 20px;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+      }
+
+      .biblia-titulo-area {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+      }
+
+      .biblia-header h2 {
+          color: white;
+          margin: 0;
+          font-size: 1.2rem;
+          font-weight: 700;
+      }
+
+      .btn-fechar-biblia {
+          background: none;
+          border: none;
+          color: white;
+          font-size: 1.5rem;
+          cursor: pointer;
+          padding: 0;
+          margin: 0;
+      }
+
+      .biblia-controles {
+          padding: 15px;
+          background-color: #f8fafc;
+          border-bottom: 1px solid #e2e8f0;
+          display: flex;
+          gap: 10px;
+      }
+
+      .biblia-controles select {
+          flex: 1;
+          padding: 10px;
+          border: 1px solid #cbd5e1;
+          border-radius: 8px;
+          outline: none;
+          font-family: 'Inter', sans-serif;
+          margin-bottom: 0;
+      }
+
+      .btn-ler-ouro {
+          background-color: var(--ouro-videira);
+          color: white;
+          padding: 10px 20px;
+          border-radius: 8px;
+          font-weight: 600;
+          border: none;
+          cursor: pointer;
+      }
+
+      .btn-ler-ouro:hover {
+          background-color: var(--ouro-escuro);
+      }
+
+      .biblia-texto-area {
+          padding: 25px 20px;
+          overflow-y: auto;
+          flex: 1;
+          line-height: 1.8;
+          font-size: 1rem;
+          color: #334155;
+      }
+
+      .biblia-placeholder {
+          text-align: center;
+          color: #94a3b8;
+          font-style: italic;
+          margin-top: 50px;
+      }
     </style>
   </head>
   <body>
@@ -117,6 +314,16 @@
         </div>
         <button onclick="carregarTudo()" class="btn-refresh"><i id="iconRefresh" class="fas fa-sync-alt"></i></button>
       </div>
+
+      <div class="stat-card" id="card-versiculo">
+        <span class="titulo-versiculo"><i class="fas fa-star"></i> Versículo do Dia</span>
+        <p class="texto-versiculo" id="texto-versiculo-dia">Carregando...</p>
+        <span class="ref-versiculo" id="ref-versiculo-dia"></span>
+      </div>
+
+      <button onclick="abrirBiblia()" class="btn-biblia-destaque">
+        <i class="fas fa-bible"></i>Bíblia A Mensagem
+      </button>
 
       <div class="nav-menu">
         <button onclick="mudarSecao('lista')" class="nav-btn active" id="btn-lista"><i class="fas fa-users"></i> Membros</button>
@@ -365,6 +572,32 @@
 
     </div>
 
+    <div id="painel-biblia" class="biblia-offcanvas">
+        <div class="biblia-header">
+            <div class="biblia-titulo-area">
+                <i class="fas fa-bible" style="font-size: 1.5rem;"></i>
+                <h2>A Mensagem</h2>
+            </div>
+            <button class="btn-fechar-biblia" onclick="fecharBiblia()">✕</button>
+        </div>
+
+        <div class="biblia-controles">
+            <select id="biblia-livro" onchange="atualizarCapitulos()">
+                <option value="">Selecione o Livro</option>
+            </select>
+            <select id="biblia-capitulo" disabled>
+                <option value="">Capítulo</option>
+            </select>
+            <button class="btn-ler-ouro" onclick="carregarCapitulo()">Ler</button>
+        </div>
+
+        <div id="biblia-conteudo" class="biblia-texto-area">
+            <p class="biblia-placeholder">Selecione um livro e capítulo para começar a leitura.</p>
+        </div>
+    </div>
+
+    <div id="biblia-overlay" onclick="fecharBiblia()"></div>
+
     <script>
       const API_URL = sessionStorage.getItem('urlApi');
       let dadosMembros = [], dadosCelulas = [], dadosFinanceiros = [], lideres = [], dadosRelatorios = [], listaPalavras = [], listaAgenda = [];
@@ -407,6 +640,10 @@
             } catch(e) {
                 renderizarAgenda([]);
             }
+
+            // Busca Versículo do Dia
+            carregarVersiculoDoDia();
+
         } catch(e) { console.error(e); } finally { if(icon) icon.classList.remove('fa-spin'); }
       }
 
@@ -492,7 +729,6 @@
              return;
          }
 
-         // Guardamos o índice original antes de ordenar
          let listaComIndex = lista.map((item, index) => {
              return { originalIndex: index, data: item };
          });
@@ -558,7 +794,7 @@
           let dataA = a[0];
           if (dataA.includes('/')) {
              const p = dataA.split('/');
-             dataA = `${p[2]}-${p[1]}-${p[0]}`; // Formato yyyy-mm-dd pro input type="date"
+             dataA = `${p[2]}-${p[1]}-${p[0]}`; 
           }
           
           document.getElementById('agendaData').value = dataA;
@@ -576,7 +812,7 @@
           try {
               const res = await fetchGoogle('excluirAgenda', { index: index });
               alert(res);
-              carregarTudo(); // Recarrega a página pra atualizar a lista
+              carregarTudo(); 
           } catch(e) {
               console.error(e);
           }
@@ -706,6 +942,167 @@
       async function arquivar(id, n) { if(confirm(`Arquivar ${n}?`)) { try{ await fetchGoogle('arquivarMembro', {id:id}); carregarTudo(); } catch(e){} } }
       async function restaurar(id) { if(confirm("Restaurar?")) { try{ await fetchGoogle('restaurarMembro', {id:id}); mudarSecao('lista'); carregarTudo(); } catch(e){} } }
       function filtrarTabela(id) { const b = document.getElementById('inputBuscaArquivo').value.toLowerCase(); const rows = document.getElementById('corpoArquivo').getElementsByTagName('tr'); for(let r of rows) r.style.display = r.innerText.toLowerCase().includes(b)?'':'none'; }
+
+      // ==========================================
+      // FUNÇÕES DA BÍBLIA & VERSÍCULO
+      // ==========================================
+      const dadosBiblia = [
+          { id: "genesis", nome: "Gênesis", caps: 50 }, { id: "exodo", nome: "Êxodo", caps: 40 }, 
+          { id: "levitico", nome: "Levítico", caps: 27 }, { id: "numeros", nome: "Números", caps: 36 }, 
+          { id: "deuteronomio", nome: "Deuteronômio", caps: 34 }, { id: "josue", nome: "Josué", caps: 24 }, 
+          { id: "juizes", nome: "Juízes", caps: 21 }, { id: "rute", nome: "Rute", caps: 4 }, 
+          { id: "1samuel", nome: "1 Samuel", caps: 31 }, { id: "2samuel", nome: "2 Samuel", caps: 24 }, 
+          { id: "1reis", nome: "1 Reis", caps: 22 }, { id: "2reis", nome: "2 Reis", caps: 25 }, 
+          { id: "1cronicas", nome: "1 Crônicas", caps: 29 }, { id: "2cronicas", nome: "2 Crônicas", caps: 36 }, 
+          { id: "esdras", nome: "Esdras", caps: 10 }, { id: "neemias", nome: "Neemias", caps: 13 }, 
+          { id: "ester", nome: "Ester", caps: 10 }, { id: "jo", nome: "Jó", caps: 42 }, 
+          { id: "salmos", nome: "Salmos", caps: 150 }, { id: "proverbios", nome: "Provérbios", caps: 31 }, 
+          { id: "eclesiastes", nome: "Eclesiastes", caps: 12 }, { id: "cantares", nome: "Cantares", caps: 8 }, 
+          { id: "isaias", nome: "Isaías", caps: 66 }, { id: "jeremias", nome: "Jeremias", caps: 52 }, 
+          { id: "lamentacoes", nome: "Lamentações", caps: 5 }, { id: "ezequiel", nome: "Ezequiel", caps: 48 }, 
+          { id: "daniel", nome: "Daniel", caps: 12 }, { id: "oseias", nome: "Oseias", caps: 14 }, 
+          { id: "joel", nome: "Joel", caps: 3 }, { id: "amos", nome: "Amós", caps: 9 }, 
+          { id: "obadias", nome: "Obadias", caps: 1 }, { id: "jonas", nome: "Jonas", caps: 4 }, 
+          { id: "miqueias", nome: "Miqueias", caps: 7 }, { id: "naum", nome: "Naum", caps: 3 }, 
+          { id: "habacuque", nome: "Habacuque", caps: 3 }, { id: "sofonias", nome: "Sofonias", caps: 3 }, 
+          { id: "ageu", nome: "Ageu", caps: 2 }, { id: "zacarias", nome: "Zacarias", caps: 14 }, 
+          { id: "malaquias", nome: "Malaquias", caps: 4 },
+          // NOVO TESTAMENTO
+          { id: "mateus", nome: "Mateus", caps: 28 }, { id: "marcos", nome: "Marcos", caps: 16 }, 
+          { id: "lucas", nome: "Lucas", caps: 24 }, { id: "joao", nome: "João", caps: 21 }, 
+          { id: "atos", nome: "Atos", caps: 28 }, { id: "romanos", nome: "Romanos", caps: 16 }, 
+          { id: "1corintios", nome: "1 Coríntios", caps: 16 }, { id: "2corintios", nome: "2 Coríntios", caps: 13 }, 
+          { id: "galatas", nome: "Gálatas", caps: 6 }, { id: "efesios", nome: "Efésios", caps: 6 }, 
+          { id: "filipenses", nome: "Filipenses", caps: 4 }, { id: "colossenses", nome: "Colossenses", caps: 4 }, 
+          { id: "1tessalonicenses", nome: "1 Tessalonicenses", caps: 5 }, { id: "2tessalonicenses", nome: "2 Tessalonicenses", caps: 3 }, 
+          { id: "1timoteo", nome: "1 Timóteo", caps: 6 }, { id: "2timoteo", nome: "2 Timóteo", caps: 4 }, 
+          { id: "tito", nome: "Tito", caps: 3 }, { id: "filemon", nome: "Filemom", caps: 1 }, 
+          { id: "hebreus", nome: "Hebreus", caps: 13 }, { id: "tiago", nome: "Tiago", caps: 5 }, 
+          { id: "1pedro", nome: "1 Pedro", caps: 5 }, { id: "2pedro", nome: "2 Pedro", caps: 3 }, 
+          { id: "1joao", nome: "1 João", caps: 5 }, { id: "2joao", nome: "2 João", caps: 1 }, 
+          { id: "3joao", nome: "3 João", caps: 1 }, { id: "judas", nome: "Judas", caps: 1 }, 
+          { id: "apocalipse", nome: "Apocalipse", caps: 22 }
+      ];
+
+      async function carregarVersiculoDoDia() {
+          const versiculosNT = [
+              "rm/8/28", "jo/3/16", "fp/4/13", "mt/11/28", "rm/12/2",
+              "gl/2/20", "ef/2/8", "fp/4/6", "cl/3/14", "2tm/1/7",
+              "hb/11/1", "tg/1/5", "1pe/5/7", "1jo/4/8", "ap/3/20",
+              "mt/6/33", "mc/11/24", "lc/1/37", "jo/14/6", "at/1/8",
+              "rm/5/8", "1co/13/4", "2co/5/17", "gl/5/22", "ef/6/11",
+              "fp/1/6", "cl/1/15", "1ts/5/16", "hb/12/2", "tg/4/8", "1pe/2/9"
+          ];
+
+          const diaHoje = new Date().getDate(); 
+          const referenciaEscolhida = versiculosNT[diaHoje - 1]; 
+
+          try {
+              const resposta = await fetch(`https://www.abibliadigital.com.br/api/verses/ara/${referenciaEscolhida}`);
+              const dados = await resposta.json();
+
+              document.getElementById('texto-versiculo-dia').innerText = `"${dados.text}"`;
+              document.getElementById('ref-versiculo-dia').innerText = `- ${dados.book.name} ${dados.chapter}:${dados.number}`;
+          } catch (erro) {
+              document.getElementById('texto-versiculo-dia').innerText = '"Tudo posso naquele que me fortalece."';
+              document.getElementById('ref-versiculo-dia').innerText = "- Filipenses 4:13";
+          }
+      }
+
+      function abrirBiblia() {
+          document.getElementById('painel-biblia').classList.add('aberto');
+          const overlay = document.getElementById('biblia-overlay');
+          overlay.style.display = 'block';
+          setTimeout(() => overlay.style.opacity = '1', 10);
+          
+          iniciarBiblia(); 
+      }
+
+      function fecharBiblia() {
+          document.getElementById('painel-biblia').classList.remove('aberto');
+          const overlay = document.getElementById('biblia-overlay');
+          overlay.style.opacity = '0';
+          setTimeout(() => overlay.style.display = 'none', 300);
+      }
+      
+      function iniciarBiblia() {
+          const selectLivro = document.getElementById('biblia-livro');
+          selectLivro.innerHTML = '<option value="">Selecione o Livro</option>';
+
+          dadosBiblia.forEach((livro, index) => {
+              let option = document.createElement('option');
+              option.value = livro.id;
+              option.text = livro.nome;
+              
+              if (index >= 39) {
+                  option.style.fontWeight = "bold"; 
+              }
+              
+              selectLivro.appendChild(option);
+          });
+      }
+
+      function atualizarCapitulos() {
+          const selectLivro = document.getElementById('biblia-livro');
+          const selectCapitulo = document.getElementById('biblia-capitulo');
+          
+          selectCapitulo.innerHTML = '<option value="">Capítulo</option>';
+          
+          if (selectLivro.value === "") {
+              selectCapitulo.disabled = true;
+              return;
+          }
+
+          const livroEscolhido = dadosBiblia.find(l => l.id === selectLivro.value);
+          
+          for (let i = 1; i <= livroEscolhido.caps; i++) {
+              let option = document.createElement('option');
+              option.value = i;
+              option.text = i;
+              selectCapitulo.appendChild(option);
+          }
+          
+          selectCapitulo.disabled = false;
+      }
+
+      async function carregarCapitulo() {
+          const selectLivro = document.getElementById('biblia-livro');
+          const inputCapitulo = document.getElementById('biblia-capitulo');
+          const conteudo = document.getElementById('biblia-conteudo');
+          
+          const livro = selectLivro.value;
+          const capitulo = inputCapitulo.value;
+
+          if (!livro || !capitulo) {
+              alert("Por favor, selecione um livro e o capítulo.");
+              return;
+          }
+
+          conteudo.innerHTML = "<p class='biblia-placeholder'><i class='fas fa-spinner fa-spin'></i> Carregando...</p>";
+          
+          try {
+              const versiculos = await fetchGoogle('buscarCapituloBiblia', { livro: livro, capitulo: capitulo });
+              
+              conteudo.innerHTML = `<h3 style="color: var(--ouro-videira); margin-bottom: 25px; text-transform: capitalize;">${selectLivro.options[selectLivro.selectedIndex].text} ${capitulo}</h3>`;
+              
+              versiculos.forEach(v => {
+                  let blocoHTML = `<div style="margin-bottom: 15px;">`;
+                  
+                  if (v.title && v.title.trim() !== "") {
+                      blocoHTML += `<h4 style="color: #475569; font-size: 0.95rem; margin-top: 25px; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px;">${v.title}</h4>`;
+                  }
+                  
+                  blocoHTML += `<p style="margin: 0; text-align: justify;">
+                                  <sup style="color: var(--ouro-videira); font-weight: bold; margin-right: 4px;">${v.number}</sup>
+                                  ${v.content}
+                                </p></div>`;
+                  conteudo.innerHTML += blocoHTML;
+              });
+
+          } catch (e) {
+              conteudo.innerHTML = `<p style="color: var(--danger-text); text-align: center;">Erro ao carregar o capítulo. Verifique se o livro e o capítulo existem.</p>`;
+          }
+      }
     </script>
   </body>
 </html>
