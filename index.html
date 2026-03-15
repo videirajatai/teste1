@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Acesso - Videira Jataí</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+
+    <link rel="icon" type="image/png" href="logo.png">
+    <link rel="shortcut icon" type="image/png" href="logo.png">
+    <link rel="apple-touch-icon" href="logo.png">
+
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="application-name" content="Sistema Videira">
+    <meta name="apple-mobile-web-app-title" content="Sistema Videira">
+    <meta name="theme-color" content="#0f172a"> 
+    <link rel="manifest" href="manifest.json">
+    
+    <style>
+        /* Estilos auxiliares para a alternância de telas e links */
+        .tela { display: none; }
+        .tela.ativa { display: block; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .links-uteis {
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            text-align: center;
+        }
+        .link-acao {
+            color: var(--ouro-videira, #b8860b);
+            cursor: pointer;
+            font-size: 0.9rem;
+            text-decoration: underline;
+            background: none;
+            border: none;
+            padding: 0;
+            font-family: inherit;
+        }
+        .link-acao:hover { color: #8a6508; }
+    </style>
+</head>
+<body>
+
+    <div class="login-container">
+        <div id="tela-login" class="tela ativa">
+            <div id="area-form">
+                <div class="logo-container" style="text-align: center; margin-bottom: 20px;">
+                    <img src="logo.png" alt="Videira Jataí" style="max-width: 100px;">
+                </div>
+                <h1 id="titulo-login" style="text-align: center;">Bem-vindo(a)</h1>
+                <p id="subtitulo-login" style="text-align: center; margin-bottom: 30px;">Acesse o seu painel</p>
+                
+                <div class="input-group">
+                    <label>Usuário</label>
+                    <input type="text" id="usuario-input" placeholder="Digite seu usuário" onkeypress="verificarEnter(event, 'login')">
+                </div>
+                <div class="input-group">
+                    <label>Senha</label>
+                    <input type="password" id="senha-input" placeholder="Digite sua senha" onkeypress="verificarEnter(event, 'login')">
+                </div>
+                
+                <button id="btn-entrar" onclick="verificarLogin()" style="width: 100%; margin-top: 10px;">Entrar no Sistema</button>
+                
+                <div class="links-uteis">
+                    <button class="link-acao" onclick="mudarTela('tela-recuperar')">Esqueci minha senha</button>
+                    <button class="link-acao" onclick="mudarTela('tela-cadastro')">Ainda não tem conta? Cadastre-se (Membro)</button>
+                </div>
+            </div>
+
+            <div id="area-escolha" style="display: none; text-align: center;">
+                <h2>Escolha o seu Painel</h2>
+                <div id="botoes-paineis" style="display: flex; flex-direction: column; gap: 10px; margin-top: 20px;"></div>
+                <button onclick="sair()" style="margin-top: 20px; background-color: #dc3545;">Sair</button>
+            </div>
+        </div>
+
+        <div id="tela-cadastro" class="tela">
+            <div class="logo-container" style="text-align: center; margin-bottom: 20px;">
+                <img src="logo.png" alt="Videira Jataí" style="max-width: 80px;">
+            </div>
+            <h2 style="text-align: center;">Novo Cadastro</h2>
+            <p style="text-align: center; margin-bottom: 20px; font-size: 0.9rem;">Preencha os dados para se tornar membro.</p>
+            
+            <div class="input-group">
+                <label>Nome Completo *</label>
+                <input type="text" id="cad-nome" placeholder="Seu nome completo">
+            </div>
+            <div class="input-group">
+                <label>E-mail *</label>
+                <input type="email" id="cad-email" placeholder="seuemail@exemplo.com">
+            </div>
+            <div class="input-group">
+                <label>WhatsApp *</label>
+                <input type="text" id="cad-whatsapp" placeholder="(00) 00000-0000">
+            </div>
+            <div class="input-group">
+                <label>Usuário para Login *</label>
+                <input type="text" id="cad-usuario" placeholder="Crie um nome de usuário">
+            </div>
+            <div class="input-group">
+                <label>Senha *</label>
+                <input type="password" id="cad-senha" placeholder="Crie uma senha forte" onkeypress="verificarEnter(event, 'cadastro')">
+            </div>
+            
+            <button id="btn-cadastrar" onclick="cadastrarMembro()" style="width: 100%; margin-top: 10px;">Finalizar Cadastro</button>
+            
+            <div class="links-uteis">
+                <button class="link-acao" onclick="mudarTela('tela-login')">Voltar para o Login</button>
+            </div>
+        </div>
+
+        <div id="tela-recuperar" class="tela">
+            <div class="logo-container" style="text-align: center; margin-bottom: 20px;">
+                <img src="logo.png" alt="Videira Jataí" style="max-width: 80px;">
+            </div>
+            <h2 style="text-align: center;">Recuperar Senha</h2>
+            <p style="text-align: center; margin-bottom: 20px; font-size: 0.9rem;">Informe seu e-mail para receber o link de redefinição.</p>
+            
+            <div class="input-group">
+                <label>Seu E-mail Cadastrado</label>
+                <input type="email" id="rec-email" placeholder="Digite o e-mail" onkeypress="verificarEnter(event, 'recuperar')">
+            </div>
+            
+            <button id="btn-enviar-link" onclick="enviarRecuperacao()" style="width: 100%; margin-top: 10px;">Enviar Link por E-mail</button>
+            
+            <div class="links-uteis">
+                <button class="link-acao" onclick="mudarTela('tela-login')">Voltar para o Login</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // ================= CONFIGURAÇÕES =================
+        const SB_URL = "SUA_URL_SUPABASE_AQUI"; 
+        const SB_KEY = "SUA_CHAVE_SUPABASE_AQUI";
+        
+        // URL do Google Script usada para agenda / envio de e-mails
+        const URL_GOOGLE_SCRIPT = "SUA_URL_DO_GOOGLE_SCRIPT_AQUI"; 
+        // ==================================================
+
+        // Função para alternar entre as 3 telas
+        function mudarTela(idTelaAlvo) {
+            document.querySelectorAll('.tela').forEach(tela => tela.classList.remove('ativa'));
+            document.getElementById(idTelaAlvo).classList.add('ativa');
+        }
+
+        function verificarEnter(event, contexto) { 
+            if (event.key === "Enter") {
+                if(contexto === 'login') verificarLogin();
+                if(contexto === 'cadastro') cadastrarMembro();
+                if(contexto === 'recuperar') enviarRecuperacao();
+            }
+        }
+
+        // ================= FUNÇÕES DE LOGIN (Mantidas e adaptadas do original) =================
+        async function verificarLogin() {
+            const usuarioInput = document.getElementById('usuario-input').value.trim();
+            const senhaInput = document.getElementById('senha-input').value.trim();
+            const btn = document.getElementById('btn-entrar');
+
+            if (!usuarioInput || !senhaInput) {
+                alert("Por favor, preencha usuário e senha.");
+                return;
+            }
+
+            btn.innerText = "Verificando...";
+            btn.disabled = true;
+
+            try {
+                // Adapte o nome da tabela 'usuarios' e as colunas se necessário
+                const resposta = await fetch(`${SB_URL}/rest/v1/usuarios?usuario=eq.${encodeURIComponent(usuarioInput)}&select=*`, {
+                    headers: {
+                        'apikey': SB_KEY,
+                        'Authorization': `Bearer ${SB_KEY}`
+                    }
+                });
+
+                const dados = await resposta.json();
+
+                if (dados.length > 0) {
+                    const usuarioBanco = dados[0];
+                    if (usuarioBanco.senha === senhaInput) {
+                        
+                        // Guarda informações na sessão
+                        sessionStorage.setItem('usuarioLogado', usuarioBanco.nome || usuarioBanco.usuario);
+                        sessionStorage.setItem('loginDigitado', usuarioBanco.usuario);
+                        sessionStorage.setItem('nivelAcesso', usuarioBanco.nivel);
+
+                        await registrarLogAcao("Fez login no sistema.");
+
+                        // Redirecionamento baseado no nível
+                        if (usuarioBanco.nivel === 'admin') window.location.href = 'admin.html';
+                        else if (usuarioBanco.nivel === 'pastor') window.location.href = 'pastor.html';
+                        else if (usuarioBanco.nivel === 'discipulador') window.location.href = 'discipulador.html';
+                        else if (usuarioBanco.nivel === 'lider') window.location.href = 'lider.html';
+                        else if (usuarioBanco.nivel === 'financeiro') window.location.href = 'financeiro.html';
+                        else if (usuarioBanco.nivel === 'membro') {
+                            alert("Área de membro em desenvolvimento. Em breve você terá acesso ao seu painel!");
+                            // window.location.href = 'membro.html'; // Descomente quando a tela de membro existir
+                        }
+                        else {
+                            alert("Nível de acesso não reconhecido.");
+                        }
+                    } else {
+                        alert("Senha incorreta.");
+                    }
+                } else {
+                    alert("Usuário não encontrado.");
+                }
+            } catch (erro) {
+                console.error("Erro no login:", erro);
+                alert("Erro ao conectar com o servidor.");
+            } finally {
+                btn.innerText = "Entrar no Sistema";
+                btn.disabled = false;
+            }
+        }
+
+        // ================= FUNÇÃO DE CADASTRO =================
+        async function cadastrarMembro() {
+            const nome = document.getElementById('cad-nome').value.trim();
+            const email = document.getElementById('cad-email').value.trim();
+            const whatsapp = document.getElementById('cad-whatsapp').value.trim();
+            const usuario = document.getElementById('cad-usuario').value.trim();
+            const senha = document.getElementById('cad-senha').value.trim();
+            const btn = document.getElementById('btn-cadastrar');
+
+            if (!nome || !email || !whatsapp || !usuario || !senha) {
+                alert("Por favor, preencha todos os campos obrigatórios.");
+                return;
+            }
+
+            btn.innerText = "Cadastrando...";
+            btn.disabled = true;
+
+            const novoMembro = {
+                nome: nome,
+                email: email,
+                whatsapp: whatsapp,
+                usuario: usuario,
+                senha: senha,
+                nivel: 'membro' // Força o nível como membro
+            };
+
+            try {
+                // Insere no banco (tabela 'usuarios' - ajuste se o nome for diferente)
+                const resposta = await fetch(`${SB_URL}/rest/v1/usuarios`, {
+                    method: 'POST',
+                    headers: {
+                        'apikey': SB_KEY,
+                        'Authorization': `Bearer ${SB_KEY}`,
+                        'Content-Type': 'application/json',
+                        'Prefer': 'return=minimal'
+                    },
+                    body: JSON.stringify(novoMembro)
+                });
+
+                if (resposta.ok) {
+                    alert("Cadastro realizado com sucesso! Você já pode fazer login.");
+                    
+                    // Limpa os campos
+                    document.getElementById('cad-nome').value = "";
+                    document.getElementById('cad-email').value = "";
+                    document.getElementById('cad-whatsapp').value = "";
+                    document.getElementById('cad-usuario').value = "";
+                    document.getElementById('cad-senha').value = "";
+                    
+                    mudarTela('tela-login'); // Volta para o login
+                } else {
+                    const erro = await resposta.json();
+                    alert("Erro ao cadastrar. Verifique se o usuário já existe.");
+                    console.error(erro);
+                }
+            } catch (erro) {
+                console.error("Erro na comunicação:", erro);
+                alert("Erro ao tentar cadastrar. Verifique sua conexão.");
+            } finally {
+                btn.innerText = "Finalizar Cadastro";
+                btn.disabled = false;
+            }
+        }
+
+        // ================= FUNÇÃO DE RECUPERAR SENHA (via GS) =================
+        async function enviarRecuperacao() {
+            const email = document.getElementById('rec-email').value.trim();
+            const btn = document.getElementById('btn-enviar-link');
+
+            if (!email) {
+                alert("Por favor, informe o seu e-mail.");
+                return;
+            }
+
+            btn.innerText = "Enviando...";
+            btn.disabled = true;
+
+            try {
+                // Envia para o Google Script processar o envio de e-mail
+                const resposta = await fetch(URL_GOOGLE_SCRIPT, {
+                    method: 'POST',
+                    mode: 'no-cors', // Dependendo de como o GS está configurado
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        action: 'recuperar_senha',
+                        email: email
+                    })
+                });
+
+                // Como usamos no-cors no GS, não conseguimos ler o json de retorno direto, mas assumimos sucesso se a promise resolver
+                alert("Se o e-mail estiver cadastrado, você receberá um link de redefinição em breve.");
+                document.getElementById('rec-email').value = "";
+                mudarTela('tela-login');
+
+            } catch (erro) {
+                console.error("Erro ao solicitar recuperação:", erro);
+                alert("Não foi possível solicitar a recuperação agora. Tente novamente mais tarde.");
+            } finally {
+                btn.innerText = "Enviar Link por E-mail";
+                btn.disabled = false;
+            }
+        }
+
+        // ================= FUNÇÕES DE LOG E UTILIDADES =================
+        async function registrarLogAcao(acaoRealizada) {
+            const nomeReal = sessionStorage.getItem('usuarioLogado') || 'Desconhecido';
+            const user = sessionStorage.getItem('loginDigitado') || 'Desconhecido';
+            const dataHoraAtual = new Date().toLocaleString('pt-BR'); 
+            
+            const dadosLog = {
+                datahora: dataHoraAtual,
+                usuario: user,
+                nomelider: nomeReal,
+                acao: acaoRealizada 
+            };
+
+            try {
+                await fetch(`${SB_URL}/rest/v1/log`, {
+                    method: 'POST',
+                    headers: {
+                        'apikey': SB_KEY,
+                        'Authorization': `Bearer ${SB_KEY}`,
+                        'Content-Type': 'application/json',
+                        'Prefer': 'return=minimal'
+                    },
+                    body: JSON.stringify(dadosLog)
+                });
+            } catch (e) { console.error("Aviso: Falha ao registrar log.", e); }
+        }
+
+        function sair() {
+            sessionStorage.clear();
+            document.getElementById('area-escolha').style.display = 'none';
+            document.getElementById('area-form').style.display = 'block';
+            document.getElementById('usuario-input').value = "";
+            document.getElementById('senha-input').value = "";
+        }
+    </script>
+</body>
+</html>
