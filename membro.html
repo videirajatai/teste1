@@ -114,7 +114,7 @@
 
         /* BÍBLIA */
         .biblia-controles { background-color: var(--card-bg); padding: 15px; border-radius: var(--radius); box-shadow: var(--shadow); display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap;}
-        .biblia-controles select { flex: 1; min-width: 100px; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; outline: none; font-family: 'Inter', sans-serif; background: #f8fafc; cursor: pointer;}
+        .biblia-controles select { flex: 1; min-width: 100px; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; outline: none; font-family: 'Inter', sans-serif; background: #f8fafc; cursor: pointer; }
         .biblia-texto-area { background: var(--card-bg); padding: 20px; border-radius: var(--radius); box-shadow: var(--shadow); line-height: 1.8; font-size: 1rem; color: #334155; }
         .biblia-placeholder { text-align: center; color: #94a3b8; font-style: italic; margin-top: 20px; }
 
@@ -237,7 +237,7 @@
         const SB_URL = "https://ryvfogmfpjyamgqsltks.supabase.co"; 
         const SB_KEY = "sb_publishable_nFMOC-fPkJnsmf5_noOTBg_tKV6Cr1q";
         
-        const URL_GOOGLE_SCRIPT = "https://script.google.com/macros/s/AKfycbxnystn3UqAKnfLUgw7tXS8CzrnpxTS0iax80rhMCRs-T47ibodGYvbRw2KRrtsnCzn/exec";
+        const URL_GOOGLE_SCRIPT = sessionStorage.getItem('urlApi') || "https://script.google.com/macros/s/AKfycbxnystn3UqAKnfLUgw7tXS8CzrnpxTS0iax80rhMCRs-T47ibodGYvbRw2KRrtsnCzn/exec";
 
         let listaPalavras = [];
         let listaAgenda = [];
@@ -260,7 +260,7 @@
         async function carregarDados(icon) {
             if(icon) icon.classList.add('fa-spin');
             
-            // CARREGAR PALAVRAS (DO SUPABASE)
+            // 1. CARREGAR PALAVRAS (SUPABASE)
             try {
                 const respostaPalavras = await fetch(`${SB_URL}/rest/v1/palavras?select=*`, {
                     headers: { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}` }
@@ -286,20 +286,25 @@
                 document.getElementById('listaPalavras').innerHTML = '<p style="text-align:center; color:#dc3545;">Erro ao carregar palavras.</p>';
             }
 
-            // CARREGAR AGENDA (DO GOOGLE SCRIPT - DEVOLVIDO AO SEU MODELO ORIGINAL)
+            // 2. CARREGAR AGENDA (GOOGLE SCRIPT - CORRIGIDO PARA POST COM JSON)
             try {
-                const urlCompleta = `${URL_GOOGLE_SCRIPT}?action=buscarAgenda`;
-                const respostaAgenda = await fetch(urlCompleta);
-                const dadosTexto = await respostaAgenda.text();
+                const respostaAgenda = await fetch(URL_GOOGLE_SCRIPT, {
+                    method: 'POST',
+                    body: JSON.stringify({ action: "buscarAgenda" })
+                    // Sem Content-Type para evitar bloqueios de CORS no Google Apps Script
+                });
                 
-                try {
-                    listaAgenda = JSON.parse(dadosTexto);
+                const responseData = await respostaAgenda.json();
+                
+                if (responseData.status === "sucesso") {
+                    listaAgenda = responseData.dados;
                     renderizarAgenda(listaAgenda);
-                } catch(errParse) {
+                } else {
+                    console.error("Erro do servidor:", responseData.mensagem);
                     renderizarAgenda([]); 
                 }
             } catch(e) {
-                console.error("Erro na Agenda:", e);
+                console.error("Erro na comunicação com a Agenda:", e);
                 renderizarAgenda([]);
             }
 
@@ -341,31 +346,32 @@
             const div = document.getElementById('listaAgenda');
             div.innerHTML = '';
             
-            if(!dados || dados.length === 0 || dados.erro) {
+            if(!dados || dados.length === 0) {
                 div.innerHTML = '<p style="text-align:center; color:#999; margin-top:20px; grid-column: 1 / -1;">Nenhum evento futuro agendado.</p>';
                 return;
             }
 
+            // O GS retorna: [Data(0), Título(1), Descrição(2), Tipo(3), Categoria(4)]
             dados.forEach(a => {
-                const tipo = a[2] || '';
+                const dataEv = a[0] || '';
+                const tituloEv = a[1] || 'Evento';
+                const descEv = a[2] || '';
+                const tipoEv = a[3] || 'Agenda';
+
                 let corTipo = "#3b82f6";
-                if(tipo.toLowerCase().includes('culto')) corTipo = "#600018";
-                if(tipo.toLowerCase().includes('célula')) corTipo = "#10b981";
+                if(tituloEv.toLowerCase().includes('culto')) corTipo = "#600018";
+                if(tituloEv.toLowerCase().includes('célula')) corTipo = "#10b981";
 
                 div.innerHTML += `
                 <div class="member-card">
                     <div class="card-header">
-                        <strong style="font-size: 1.1rem; color: #1e293b;">${a[0] || ''}</strong>
-                        <span class="cat-badge" style="background-color: ${corTipo}; color: white; padding: 4px 8px; border-radius: 6px; font-size: 0.8rem;">${a[2] || 'Evento'}</span>
+                        <strong style="font-size: 1.1rem; color: #1e293b;">${dataEv}</strong>
+                        <span class="cat-badge" style="background-color: ${corTipo}; color: white; padding: 4px 8px; border-radius: 6px; font-size: 0.8rem;">${tipoEv}</span>
                     </div>
-                    <div style="font-size: 0.9rem; color: #64748b; margin-top: 5px;">
-                        <i class="far fa-clock"></i> ${a[1] || ''}
+                    <div style="font-size: 1rem; color: #334155; margin-top: 8px; font-weight: 600;">
+                        <i class="far fa-calendar-check" style="color: ${corTipo}; margin-right: 5px;"></i> ${tituloEv}
                     </div>
-                    <div style="margin-top: 10px;">
-                        <span style="display: inline-block; padding: 5px 10px; border-radius: 6px; font-size: 0.85rem; background: #f9f9f9; color: ${corTipo}; font-weight: bold; border: 1px solid #ddd;">
-                            <i class="fas fa-info-circle"></i> ${a[3] || ''}
-                        </span>
-                    </div>
+                    ${descEv ? `<div style="margin-top: 10px; font-size: 0.85rem; color: #64748b; padding: 8px; background: #f8fafc; border-radius: 6px; border-left: 3px solid ${corTipo};">${descEv}</div>` : ''}
                 </div>`;
             });
         }
