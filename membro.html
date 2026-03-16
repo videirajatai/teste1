@@ -18,7 +18,7 @@
 
     <style>
         :root {
-            --primary: #600018; /* Ajustado para a cor primária padrão */
+            --primary: #600018; 
             --accent: #D4AF37;
             --bg-color: #f4f7f6;
             --text-main: #333333;
@@ -220,12 +220,15 @@
     </div>
 
     <script>
-        // ================= VERIFICAÇÃO DE SESSÃO =================
+        // ================= VERIFICAÇÃO DE SESSÃO E SAÍDA =================
         const usuarioLogado = sessionStorage.getItem('usuarioLogado');
+        
         if (!usuarioLogado) {
-            window.location.href = 'index.html'; // Se não estiver logado, chuta pra tela inicial
+            window.location.href = 'index.html'; // Expulsa se não logou
         } else {
-            document.getElementById('texto-boas-vindas').innerText = `Olá, ${usuarioLogado.split(' ')[0]}`;
+            // Pega só o primeiro nome da pessoa para não ficar gigante
+            const primeiroNome = usuarioLogado.split(' ')[0];
+            document.getElementById('texto-boas-vindas').innerText = `Olá, ${primeiroNome}`;
         }
 
         function fazerLogoff() {
@@ -237,9 +240,8 @@
         const SB_URL = "https://ryvfogmfpjyamgqsltks.supabase.co"; 
         const SB_KEY = "sb_publishable_nFMOC-fPkJnsmf5_noOTBg_tKV6Cr1q";
         
-        // Puxa a URL do Google Script do sessionStorage (salva lá no index.html) 
-        // ou usa a padrão caso tenha acessado direto
-        const URL_GOOGLE_SCRIPT = sessionStorage.getItem('urlApi') || "https://script.google.com/macros/s/AKfycbxnystn3UqAKnfLUgw7tXS8CzrnpxTS0iax80rhMCRs-T47ibodGYvbRw2KRrtsnCzn/exec";
+        // URL da sua agenda no Google Script fixa
+        const URL_GOOGLE_SCRIPT = "https://script.google.com/macros/s/AKfycbxnystn3UqAKnfLUgw7tXS8CzrnpxTS0iax80rhMCRs-T47ibodGYvbRw2KRrtsnCzn/exec";
 
         let listaPalavras = [];
         let listaAgenda = [];
@@ -295,13 +297,10 @@
                 const respostaAgenda = await fetch(urlCompleta);
                 const dadosTexto = await respostaAgenda.text();
                 
-                // O Google Apps Script as vezes retorna vazio dependendo de como está montado o doGet, 
-                // Então tratamos o JSON caso consiga parsear
                 try {
                     listaAgenda = JSON.parse(dadosTexto);
                     renderizarAgenda(listaAgenda);
                 } catch(errParse) {
-                    // Se falhar o parse, envia array vazio pra renderizar
                     renderizarAgenda([]); 
                 }
             } catch(e) {
@@ -353,7 +352,6 @@
             }
 
             dados.forEach(a => {
-                // a[0]=Data, a[1]=Hora, a[2]=Tipo, a[3]=Assunto
                 const tipo = a[2] || '';
                 let corTipo = "#3b82f6";
                 if(tipo.toLowerCase().includes('culto')) corTipo = "#600018";
@@ -408,7 +406,7 @@
             }
         }
 
-        // ================= SISTEMA DA BÍBLIA (Reaproveitado) =================
+        // ================= SISTEMA DA BÍBLIA =================
         const dadosBiblia = [
             { id: "genesis", nome: "Gênesis", caps: 50 }, { id: "exodo", nome: "Êxodo", caps: 40 }, { id: "levitico", nome: "Levítico", caps: 27 }, { id: "numeros", nome: "Números", caps: 36 },
             { id: "deuteronomio", nome: "Deuteronômio", caps: 34 }, { id: "josue", nome: "Josué", caps: 24 }, { id: "juizes", nome: "Juízes", caps: 21 }, { id: "rute", nome: "Rute", caps: 4 },
@@ -462,7 +460,6 @@
             conteudo.innerHTML = "<p class='biblia-placeholder'><i class='fas fa-spinner fa-spin'></i> Carregando texto...</p>";
             
             try {
-                // Requisição direto do github conforme o seu script
                 const urlGithub = `https://raw.githubusercontent.com/videirajatai/testes/main/biblia/${livroId}/${capitulo}.json`;
                 const resposta = await fetch(urlGithub);
                 if (!resposta.ok) throw new Error("Capítulo não encontrado");
