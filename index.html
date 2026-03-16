@@ -457,31 +457,59 @@
                 return;
             }
 
-            btn.innerText = "Enviando...";
+            btn.innerText = "Processando...";
             btn.disabled = true;
             erro.style.display = 'none';
 
             try {
-                // Envio POST "limpo" para o Google Script não dar bloqueio de CORS
-                const resposta = await fetch(urlBackend, {
-                    method: 'POST',
-                    body: JSON.stringify({ action: 'recuperar_senha', email: email })
+                // 1. O HTML pergunta ao Supabase se o email existe
+                const resBusca = await fetch(`${SB_URL}/rest/v1/usuarios?email=ilike.${encodeURIComponent(email)}&select=*`, {
+                    headers: { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}` }
                 });
+                const usuarios = await resBusca.json();
 
-                const dados = await resposta.json();
+                // 2. Se existir, geramos o token e salvamos no banco
+                if (usuarios.length > 0) {
+                    const usuario = usuarios[0];
+                    const nomeReal = usuario.nome.split(' ')[0];
+                    
+                    // Gera um token aleatório gigante
+                    const tokenGerado = Math.random().toString(36).substring(2) + Date.now().toString(36);
 
-                if (dados.status === "erro") {
-                    // SE DER ERRO (ex: O banco bloqueou), ELE MOSTRA NA TELA AGORA!
-                    erro.innerText = "⚠️ Erro: " + dados.mensagem;
-                    erro.style.display = 'block';
-                } else {
-                    alert("Se o e-mail existir, você receberá instruções de redefinição no seu e-mail.");
-                    document.getElementById('rec-email').value = "";
-                    mudarTela('bloco-login');
+                    // Salva no Supabase
+                    const resPatch = await fetch(`${SB_URL}/rest/v1/usuarios?email=eq.${encodeURIComponent(usuario.email)}`, {
+                        method: 'PATCH',
+                        headers: {
+                            'apikey': SB_KEY,
+                            'Authorization': `Bearer ${SB_KEY}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ token_recuperacao: tokenGerado })
+                    });
+
+                    if(!resPatch.ok) {
+                        throw new Error("Supabase bloqueou a edição. Desative o RLS da tabela.");
+                    }
+
+                    // 3. Pede pro Google Script (o carteiro) mandar o e-mail
+                    await fetch(urlBackend, {
+                        method: 'POST',
+                        body: JSON.stringify({ 
+                            action: 'enviarEmail', 
+                            email: usuario.email, 
+                            nome: nomeReal, 
+                            token: tokenGerado 
+                        })
+                    });
                 }
 
+                // 4. Mostra sucesso (mesmo se o email não existir, por segurança)
+                alert("Se o e-mail existir, você receberá instruções de redefinição no seu e-mail.");
+                document.getElementById('rec-email').value = "";
+                mudarTela('bloco-login');
+
             } catch (e) {
-                erro.innerText = "⚠️ Erro ao comunicar com o servidor.";
+                erro.innerText = "⚠️ Erro: " + e.message;
                 erro.style.display = 'block';
                 console.error(e);
             } finally {
